@@ -16,4 +16,6 @@ class Question extends Model
      * @var array<int, string>
      */
     protected $fillable = ['answer','explanation','verified'];
+
+    protected $guarded = ['id','administration','grup','number','question','option1','option2','option3','option4'];
 }

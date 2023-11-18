@@ -10,8 +10,29 @@ class QuestionController extends Controller
 
     public function index()
     {
-        $questions = Question::all();
-        return response()->json($questions, 200, [], JSON_UNESCAPED_UNICODE);
+        if (request()->adm && request()->grp) {
+            //$questions = Question::all();
+
+            $admValue = request()->adm;
+            $grpValue = request()->grp;
+
+            if (request()->thm) {
+                $thmValue = request()->thm;
+                $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue], ['theme', '=', $thmValue]];
+            } else {
+                $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue]];
+            }
+            
+            $questions = Question::where($conditions)->get();
+            //dd($conditions);
+            dd($questions);
+            return response()->json($questions, 200, [], JSON_UNESCAPED_UNICODE);
+        }
+
+        return response([
+            'status' => 'error',
+            'description' => "Missing required parameters"
+        ]);
     }
 
     /*public function store(Request $request)
@@ -22,7 +43,7 @@ class QuestionController extends Controller
         $question->publish_date = $request->publish_date;
         $question->save();
         return response()->json([
-            "message" => "Question Addded."
+            "message" => "Question Added."
         ], 201);
     }*/
 
