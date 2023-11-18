@@ -24,8 +24,6 @@ class QuestionController extends Controller
             }
             
             $questions = Question::where($conditions)->get();
-            //dd($conditions);
-            dd($questions);
             return response()->json($questions, 200, [], JSON_UNESCAPED_UNICODE);
         }
 
