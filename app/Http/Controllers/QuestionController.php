@@ -29,7 +29,7 @@ class QuestionController extends Controller
 
         return response([
             'status' => 'error',
-            'description' => "Missing required parameters"
+            'description' => 'Missing required parameters adm('.request()->adm.') grp('.request()->grp.')'
         ]);
     }
 
