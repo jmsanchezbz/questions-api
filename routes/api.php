@@ -19,12 +19,12 @@ use App\Http\Controllers\QuestionController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::get('/books',[BookController::class, 'index']);
+/*Route::get('/books',[BookController::class, 'index']);
 Route::get('/books/{id}',[BookController::class, 'show']);
 Route::post('/books',[BookController::class, 'store']);
 Route::put('/books{id}',[BookController::class, 'update']);
-Route::delete('/books/{id}',[BookController::class, 'destroy']);
+Route::delete('/books/{id}',[BookController::class, 'destroy']);*/
 
 Route::get('/questions',[QuestionController::class, 'index']);
 Route::get('/questions/{id}',[QuestionController::class, 'show']);
-Route::put('/questions/{id}',[QuestionController::class, 'udpate']);
+Route::put('/questions/{id}',[QuestionController::class, 'update']);
