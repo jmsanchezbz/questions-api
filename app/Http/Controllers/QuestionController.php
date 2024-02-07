@@ -27,7 +27,7 @@ class QuestionController extends Controller
                 $verifiedValue = request()->verified;
                 array_push($conditions, ['verified', '=', $verifiedValue]);
             }
-            print_r($conditions);
+            
             $questions = Question::where($conditions)->get();
             return response()->json($questions, 200, [], JSON_UNESCAPED_UNICODE);
         }
