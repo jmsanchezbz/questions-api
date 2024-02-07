@@ -23,7 +23,11 @@ class QuestionController extends Controller
             } else {
                 $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue]];
             }
-
+            if (!is_null(request()->verified)) {
+                $verifiedValue = request()->verified;
+                array_push($conditions, ['verified', '=', $verifiedValue]);
+            }
+            print_r($conditions);
             $questions = Question::where($conditions)->get();
             return response()->json($questions, 200, [], JSON_UNESCAPED_UNICODE);
         }
@@ -68,7 +72,7 @@ class QuestionController extends Controller
             $now = new DateTime();
             $date = $now->format('Ymd');
             $seccode = 'jose' . $date;
-            
+
             if (strcmp($code, $seccode) === 0) {
                 $hasPermission = true;
             } else {
@@ -86,7 +90,7 @@ class QuestionController extends Controller
         $now = new DateTime();
         $date = $now->format('Ymd');
         $seccode = 'jose' . $date;
-        
+
         if ($this->hasPermission($request->seccode)) {
             if (Question::where('id', $id)->exists()) {
                 $question = Question::find($id);
