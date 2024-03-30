@@ -20,7 +20,7 @@ class QuestionController extends Controller
                 'adm' => 'required|string',
                 'grp' => 'required|string',
                 'thm' => 'integer',
-                'verified' => 'integer'
+                'verified' => 'nullable|integer'
             ]);
 
             if ($request->adm && $request->grp) {
@@ -35,7 +35,7 @@ class QuestionController extends Controller
                     $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue]];
                 }
 
-                if (!is_null($findData['verified'])) {
+                if (isset($findData['verified']) and !is_null($findData['verified'])) {
                     $verifiedValue = $findData['verified'];
                     array_push($conditions, ['verified', '=', $verifiedValue]);
                 }
