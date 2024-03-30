@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TrialController;
 
 /*
@@ -40,7 +41,10 @@ Route::get('/questions', [QuestionController::class, 'find']);
 Route::get('/questions/{id}', [QuestionController::class, 'findById']);
 Route::put('/questions/{id}', [QuestionController::class, 'update'])
     ->middleware('auth:sanctum');
-Route::get('/questions/themes', [QuestionController::class, 'update'])
-    ->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::get('/stats/themes', [StatsController::class, 'themesStats'])
+    ->middleware('auth:sanctum');
+Route::get('/stats/themes/questions', [StatsController::class, 'questionsStatsByTheme'])
+    ->middleware('auth:sanctum');
