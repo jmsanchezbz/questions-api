@@ -32,6 +32,8 @@ class StatsController extends Controller
                 ->groupByRaw('administration, grup, theme');
 
             $qryQuestionsStats = $this->queryQuestionsStats($user->id, $themesData['adm'], $themesData['grp']);
+            
+            return response()->json($qryQuestionsStats->get(), 200, [], JSON_UNESCAPED_UNICODE);
 
             $qryThemesStats = DB::table('question')
                 ->joinSub($qryQuestionsPerTheme, 'qxt', function (JoinClause $join) {
@@ -95,9 +97,9 @@ class StatsController extends Controller
                 ['theme', '=', $themeData['thm']]
             ];
 
-            $themesQuestionsStats = $this->obtainQuestionsStatsByTheme($user->id, $themeData['adm'], $themeData['grp'], $themeData['thm']);
+            $themesQuestionsStats = $this->queryQuestionsStatsByTheme($user->id, $themeData['adm'], $themeData['grp'], $themeData['thm']);
 
-            return response()->json($themesQuestionsStats, 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($themesQuestionsStats->get(), 200, [], JSON_UNESCAPED_UNICODE);
 
             Question::with('trialQuestions')->where($conditions)->get();
         } catch (Throwable $e) {
@@ -117,7 +119,7 @@ class StatsController extends Controller
      * wrong_questions
      * balance
      */
-    private function obtainQuestionsStatsByTheme(int $user_id, String $administration, String $grup, int $theme)
+    private function queryQuestionsStatsByTheme(int $user_id, String $administration, String $grup, int $theme)
     {
         $qryThemesQuestionsStats = DB::table('question')
             ->leftJoin('trial_questions', 'question.id', '=', 'trial_questions.question_id')
@@ -133,16 +135,16 @@ class StatsController extends Controller
                 'question_id',
                 'question.number',
                 'question.question',
-                DB::raw('COALESCE(sum(case when is_right = 1 then 1 end),0) as right_questions'),
-                DB::raw('COALESCE(sum(case when is_right = 0 then 1 end),0) as wrong_questions'),
-                DB::raw('COALESCE(sum(case when is_right = 1 then 1 else -1 end),0) as balance')
+                DB::raw('COALESCE(sum(case when is_right = 1 then 1 when is_right = 0 then 0 end),0) as right_questions'),
+                DB::raw('COALESCE(sum(case when is_right = 0 then 1 when is_right = 1 then 0 end),0) as wrong_questions'),
+                DB::raw('COALESCE(sum(case when is_right = 1 then 1 when is_right = 0 then -1 end),0) as balance')
             )
             ->where('question.administration', '=', $administration)
             ->where('question.theme', '=', $theme)
             ->where('question.grup', '=', $grup)
             ->groupByRaw('question.administration, question.grup, question.theme, question_id, question.number, question.question');
 
-        return $qryThemesQuestionsStats->get();
+        return $qryThemesQuestionsStats;
     }
 
     /**
@@ -165,9 +167,9 @@ class StatsController extends Controller
                 'question.theme',
                 'question_id',
                 'question.number',
-                DB::raw('COALESCE(sum(case when is_right = 1 then 1 end),0) as right_questions'),
-                DB::raw('COALESCE(sum(case when is_right = 0 then 1 end),0) as wrong_questions'),
-                DB::raw('COALESCE(sum(case when is_right = 1 then 1 else -1 end),0) as balance')
+                DB::raw('COALESCE(sum(case when is_right = 1 then 1 when is_right = 0 then 0 end),0) as right_questions'),
+                DB::raw('COALESCE(sum(case when is_right = 0 then 1 when is_right = 1 then 0 end),0) as wrong_questions'),
+                DB::raw('COALESCE(sum(case when is_right = 1 then 1 when is_right = 0 then -1 end),0) as balance')
             )
             ->where('question.administration', '=', $administration)
             ->where('question.grup', '=', $grup)

@@ -140,6 +140,8 @@ class TrialController extends Controller
 
     /**
      * Update a complete Trial with its questions
+     * 
+     * num_mistakes, is_completed calculated in front
      */
     public function update(Request $request, $id)
     {
