@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BookController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\TrialController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,15 +17,30 @@ use App\Http\Controllers\QuestionController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-/*Route::get('/books',[BookController::class, 'index']);
-Route::get('/books/{id}',[BookController::class, 'show']);
-Route::post('/books',[BookController::class, 'store']);
-Route::put('/books{id}',[BookController::class, 'update']);
-Route::delete('/books/{id}',[BookController::class, 'destroy']);*/
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth:sanctum');
 
-Route::get('/questions',[QuestionController::class, 'index']);
-Route::get('/questions/{id}',[QuestionController::class, 'show']);
-Route::put('/questions/{id}',[QuestionController::class, 'update']);
+Route::post('/trials', [TrialController::class, 'generate'])
+    ->middleware('auth:sanctum');
+Route::get('/trials', [TrialController::class, 'find'])
+    ->middleware('auth:sanctum');
+Route::get('/trials/{id}', [TrialController::class, 'findById'])
+    ->middleware('auth:sanctum');
+Route::put('/trials/{id}', [TrialController::class, 'update'])
+    ->middleware('auth:sanctum');
+Route::put('/trials/{id}/questions/{idq}', [TrialController::class, 'updateTrialQuestion'])
+    ->middleware('auth:sanctum');
+
+Route::get('/users/me', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+Route::get('/questions', [QuestionController::class, 'find']);
+Route::get('/questions/{id}', [QuestionController::class, 'findById']);
+Route::put('/questions/{id}', [QuestionController::class, 'update'])
+    ->middleware('auth:sanctum');
+Route::get('/questions/themes', [QuestionController::class, 'update'])
+    ->middleware('auth:sanctum');
+
+Route::post('/register', [AuthController::class, 'register']);
