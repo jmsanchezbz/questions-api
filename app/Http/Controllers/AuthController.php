@@ -10,6 +10,14 @@ use Throwable;
 
 class AuthController extends Controller
 {
+    public function authenticated(Request $request)
+    {
+        return response()->json([
+            'authenticated' => true,
+            'message' => 'User authenticated'
+        ]);
+    }
+
     public function register(Request $request)
     {
         try {

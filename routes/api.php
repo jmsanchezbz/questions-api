@@ -18,6 +18,8 @@ use App\Http\Controllers\TrialController;
 |
 */
 
+Route::get('/authenticated', [AuthController::class, 'authenticated'])
+    ->middleware('auth:sanctum');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth:sanctum');
@@ -32,6 +34,15 @@ Route::put('/trials/{id}', [TrialController::class, 'update'])
     ->middleware('auth:sanctum');
 Route::put('/trials/{id}/questions/{idq}', [TrialController::class, 'updateTrialQuestion'])
     ->middleware('auth:sanctum');
+
+/*Route::group(['prefix' => '', 'middleware' => 'auth:sanctum'], function () {
+    Route::post('/trials1', [TrialController::class, 'generate']);
+    Route::get('/trials1', [TrialController::class, 'find']);
+    Route::get('/trials1/{id}', [TrialController::class, 'findById']);
+    Route::put('/trials1/{id}', [TrialController::class, 'update']);
+    Route::put('/trials1/{id}/questions/{idq}', [TrialController::class, 'updateTrialQuestion']);
+});*/
+
 
 Route::get('/users/me', function (Request $request) {
     return $request->user();
