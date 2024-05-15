@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -36,7 +37,7 @@ class AuthController extends Controller
             ]);
 
             return response()->json([
-                'status' => true,
+                'status' => 'ok',
                 'message' => 'User Created '
             ]);
         } catch (ValidationException $exception) {
@@ -50,6 +51,68 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function editProfile(Request $request, $id)
+    {
+        try {
+            $regData = $request->validate([
+                'name' => 'required|string',
+                'username' => ['required', 'string', Rule::unique('users')->ignore($id)],
+                'email' => ['required', 'string', 'email', Rule::unique('users')->ignore($id)],
+                'password' => 'nullable|min:4',
+                'role' => ['required', 'in:user,admin']
+            ]);
+
+            $userAuth = $request->user();
+
+            $user = User::find($id);
+
+            $userCtrl = new UserController();
+
+            $user->name = $regData['name'];
+            $user->username = $regData['username'];
+            $user->email = $regData['email'];
+
+            if (array_key_exists('password', $regData)) {
+                $user->password = Hash::make($regData['password']);
+            }
+
+            if ($userCtrl->isAdmin($request)) {
+                $user->role = $regData['role'];
+            }
+
+            $isSaved = false;
+
+            //El perfil se puede modificar por el usuario administrador o el propio usuario
+            if ($userCtrl->isAdmin($request) || $request->user()->id == $id) {
+                $isSaved = $user->update();
+
+                return response()->json([
+                    'status' => 'ok',
+                    'message' => 'User updated ',
+                    'user' => $user
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'ko',
+                    'message' => "Unauthorized user profile modification id:{$request->user()->id}(role:{$request->user()->role}) try to modify id:{$id}"
+                ]);
+            }
+        } catch (ValidationException $exception) {
+
+            return response()->json([
+                'status' => 'exception',
+                'message' => 'Validation failed',
+                'exception' => $exception
+            ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'errors' => $e
             ], 500);
         }
     }
