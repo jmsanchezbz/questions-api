@@ -33,7 +33,7 @@ class StatsController extends Controller
 
             $qryQuestionsStats = $this->queryQuestionsStats($user->id, $themesData['adm'], $themesData['grp']);
             
-            return response()->json($qryQuestionsStats->get(), 200, [], JSON_UNESCAPED_UNICODE);
+            /*return response()->json($qryQuestionsStats->get(), 200, [], JSON_UNESCAPED_UNICODE);*/
 
             $qryThemesStats = DB::table('question')
                 ->joinSub($qryQuestionsPerTheme, 'qxt', function (JoinClause $join) {
@@ -59,7 +59,7 @@ class StatsController extends Controller
 
             return response()->json($qryThemesStats->get(), 200, [], JSON_UNESCAPED_UNICODE);
 
-            $themes = DB::table('trialQuestions')
+            /*$themes = DB::table('trialQuestions')
                 ->join('trial', 'trialQuestions.trial_id', '=', 'trial.id')
                 ->join('question', 'question.id', '=', 'trialQuestions.question_id')
                 ->where('question.administration', $themesData['adm'])
@@ -67,7 +67,7 @@ class StatsController extends Controller
                 ->select('question.theme', 'trial.id')
                 ->get();
 
-            return response()->json($themes, 200, [], JSON_UNESCAPED_UNICODE);
+            return response()->json($themes, 200, [], JSON_UNESCAPED_UNICODE);*/
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'ko',
@@ -101,7 +101,7 @@ class StatsController extends Controller
 
             return response()->json($themesQuestionsStats->get(), 200, [], JSON_UNESCAPED_UNICODE);
 
-            Question::with('trialQuestions')->where($conditions)->get();
+            /*Question::with('trialQuestions')->where($conditions)->get();*/
         } catch (Throwable $e) {
             return response()->json([
                 'status' => 'ko',
@@ -109,7 +109,6 @@ class StatsController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Questions stats by theme
@@ -132,7 +131,7 @@ class StatsController extends Controller
                 'question.administration',
                 'question.grup',
                 'question.theme',
-                'question_id',
+                'question.id as question_id',
                 'question.number',
                 'question.question',
                 DB::raw('COALESCE(sum(case when is_right = 1 then 1 when is_right = 0 then 0 end),0) as right_questions'),
@@ -142,7 +141,7 @@ class StatsController extends Controller
             ->where('question.administration', '=', $administration)
             ->where('question.theme', '=', $theme)
             ->where('question.grup', '=', $grup)
-            ->groupByRaw('question.administration, question.grup, question.theme, question_id, question.number, question.question');
+            ->groupByRaw('question.administration, question.grup, question.theme, question.id, question.number, question.question');
 
         return $qryThemesQuestionsStats;
     }

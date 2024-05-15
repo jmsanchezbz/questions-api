@@ -85,7 +85,7 @@ class TrialController extends Controller
             $numQuestions = null;
 
             if ($trialData['typ'] == 'exam') {
-                $trialName = 'Examen generico';
+                $trialName = 'Examen genérico';
                 $numQuestions = 100;
 
                 $questions = $this->questionController->obtainExamByAdm($trialData['adm']);
@@ -168,8 +168,6 @@ class TrialController extends Controller
 
             DB::beginTransaction();
 
-//return response()->json($trial->trialQuestions, 200, [], JSON_UNESCAPED_UNICODE);
-
             foreach ($tquestionsData['trial_questions'] as $q) {
                 $tQuestion = $trial->trialQuestions->find($q['id']);
 
@@ -183,9 +181,7 @@ class TrialController extends Controller
 
             $trial = Trial::with('trialQuestions')->find($id);
 
-            return response()->json($trial, 200, [], JSON_UNESCAPED_UNICODE);
-
-            if (!is_null($trial)) {
+            if ($trial && $trial->trialQuestions->isNotEmpty()) {
                 return response()->json($trial, 200, [], JSON_UNESCAPED_UNICODE);
             } else {
                 return response()->json([
