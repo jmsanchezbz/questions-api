@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -66,8 +67,6 @@ class AuthController extends Controller
                 'role' => ['required', 'in:user,admin']
             ]);
 
-            $userAuth = $request->user();
-
             $user = User::find($id);
 
             $userCtrl = new UserController();
@@ -75,8 +74,9 @@ class AuthController extends Controller
             $user->name = $regData['name'];
             $user->username = $regData['username'];
             $user->email = $regData['email'];
+            $user->updated_at = Carbon::now('Europe/Madrid');
 
-            if (array_key_exists('password', $regData)) {
+            if (!is_null($request->input('password'))) {
                 $user->password = Hash::make($regData['password']);
             }
 
@@ -105,7 +105,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'exception',
-                'message' => 'Validation failed',
+                'message' => 'Validation failed'.$exception,
                 'exception' => $exception
             ], 422);
         } catch (Throwable $e) {

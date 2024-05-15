@@ -79,7 +79,7 @@ class TrialController extends Controller
                 'thm' => 'required_if:typ,theme|integer'
             ]);
 
-            $now = Carbon::now();
+            $now = Carbon::now('Europe/Madrid');
             $trialName = null;
             $questions = null;
             $numQuestions = null;
