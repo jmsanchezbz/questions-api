@@ -172,6 +172,7 @@ class StatsController extends Controller
             )
             ->where('question.administration', '=', $administration)
             ->where('question.grup', '=', $grup)
+            ->where('trial.user_id', '=', $user_id)
             ->groupByRaw('question.administration, question.grup, question.theme, question_id, question.number');
 
         return $qryQuestionsStats;
