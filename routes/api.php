@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuestionController;
@@ -36,15 +37,18 @@ Route::put('/trials/{id}/questions/{idq}', [TrialController::class, 'updateTrial
     ->middleware('auth:sanctum');
 
 Route::group(['prefix' => '', 'middleware' => 'auth:sanctum'], function () {
+    Route::get('/users', [UserController::class, 'findAll']);
     Route::put('/users/{id}', [AuthController::class, 'editProfile']);
     Route::get('/users/me', function (Request $request) {
         return $request->user();
     });
 });
 
+/*Route::get('/users', [UserController::class,'findAll']
+})->middleware('auth:sanctum');
 Route::get('/users/me', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth:sanctum');*/
 
 Route::get('/questions', [QuestionController::class, 'find']);
 Route::get('/questions/{id}', [QuestionController::class, 'findById']);
