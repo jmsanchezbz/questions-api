@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Question;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Type\Integer;
 use Throwable;
@@ -82,23 +83,44 @@ class QuestionController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            if (Question::where('id', $id)->exists()) {
+            if (Question::where('id', $id)->exists() && $request->id == $id) {
                 $question = Question::find($id);
 
                 if (UserController::isAdmin($request)) {
-                } else if (!$question->verified) {
+                    $question->administration = is_null($request->administration) ? $question->administration : $request->administration;
+                    $question->grup = is_null($request->grup) ? $question->grup : $request->grup;
+                    $question->theme = is_null($request->theme) ? $question->theme : $request->theme;
+                    $question->number = is_null($request->number) ? $question->number : $request->number;
+                    $question->question = is_null($request->question) ? $question->question : $request->question;
+
+                    $question->option1 = is_null($request->option1) ? $question->option1 : $request->option1;
+                    $question->option2 = is_null($request->option2) ? $question->option2 : $request->option2;
+                    $question->option3 = is_null($request->option3) ? $question->option3 : $request->option3;
+                    $question->option4 = is_null($request->option4) ? $question->option4 : $request->option4;
+
                     $question->answer = is_null($request->answer) ? $question->answer : $request->answer;
                     $question->explanation = is_null($request->explanation) ? $question->explanation : $request->explanation;
                     $question->verified = is_null($request->verified) ? $question->verified : $request->verified;
 
+                    $question->updated_at = Carbon::now('Europe/Madrid');
+
                     $question->save();
 
-                    return response()->json(["message" => "Question Updated."], 200);
+                    //return response()->json($question, 200, [], JSON_UNESCAPED_UNICODE);
+
+                    return response()->json(["message" => "Completed Question Updated."], 200);
+                } else if (!$question->verified) {
+                    $question->answer = is_null($request->answer) ? $question->answer : $request->answer;
+                    $question->explanation = is_null($request->explanation) ? $question->explanation : $request->explanation;
+
+                    $question->save();
+
+                    return response()->json(["message" => "Anwser Question Updated."], 200);
                 } else {
                     return response()->json(["message" => "Question already verified is not updatable."], 403);
                 }
             } else {
-                return response()->json(["message" => "Question Not Found."], 404);
+                return response()->json(["message" => "Question Not Found or unmatched id."], 404);
             }
         } catch (Throwable $e) {
             return response()->json([
