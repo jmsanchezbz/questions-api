@@ -38,11 +38,11 @@ Route::put('/trials/{id}/questions/{idq}', [TrialController::class, 'updateTrial
 
 Route::group(['prefix' => '', 'middleware' => 'auth:sanctum'], function () {
     Route::get('/users', [UserController::class, 'findAll']);
-    Route::get('/users/{id}', [UserController::class, 'findById']);
-    Route::put('/users/{id}', [AuthController::class, 'editProfile']);
     Route::get('/users/me', function (Request $request) {
         return $request->user();
     });
+    Route::get('/users/{id}', [UserController::class, 'findById']);
+    Route::put('/users/{id}', [AuthController::class, 'editProfile']);
 });
 
 /*Route::get('/users', [UserController::class,'findAll']
