@@ -58,7 +58,7 @@ Route::put('/questions/{id}', [QuestionController::class, 'update'])
 
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::get('/stats/themes', [StatsController::class, 'themesStats'])
-    ->middleware('auth:sanctum');
-Route::get('/stats/themes/questions', [StatsController::class, 'questionsStatsByTheme'])
-    ->middleware('auth:sanctum');
+Route::group(['prefix' => '', 'middleware' => 'auth:sanctum'], function () {
+    Route::get('/stats/themes', [StatsController::class, 'themesStats']);
+    Route::get('/stats/themes/questions', [StatsController::class, 'questionsStatsByTheme']);
+});
