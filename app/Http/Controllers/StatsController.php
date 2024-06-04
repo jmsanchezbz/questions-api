@@ -120,12 +120,11 @@ class StatsController extends Controller
      */
     private function queryQuestionsStatsByTheme(int $user_id, String $administration, String $grup, int $theme)
     {
+        $queryTrialQuestionsStats = $this->queryTrialQuestionsStats($user_id, $administration, $grup);
+
         $qryThemesQuestionsStats = DB::table('question')
-            ->leftJoin('trial_questions', 'question.id', '=', 'trial_questions.question_id')
-            ->leftJoin('trial', function (JoinClause $join) use ($user_id) {
-                $join->on('trial.id', '=', 'trial_questions.trial_id')
-                    ->where('trial.is_completed', '=', '1')
-                    ->where('trial.user_id', '=', $user_id);
+            ->leftJoinSub($queryTrialQuestionsStats, 'myTrialQuestions', function (JoinClause $join) {
+                $join->on('myTrialQuestions.question_id', '=', 'question.id');
             })
             ->select(
                 'question.administration',
@@ -176,5 +175,24 @@ class StatsController extends Controller
             ->groupByRaw('question.administration, question.grup, question.theme, question_id, question.number');
 
         return $qryQuestionsStats;
+    }
+
+    /*
+     * Stats trial questions by user, adm and grup
+     */
+    private function queryTrialQuestionsStats(int $user_id, String $administration, String $grup)
+    {
+        $qryTrialQuestionsStats = DB::table('trial_questions')
+            ->leftJoin('trial', function (JoinClause $join) use ($user_id) {
+                $join->on('trial.id', '=', 'trial_questions.trial_id')
+                    ->where('trial.is_completed', '=', '1')
+                    ->where('trial.user_id', '=', $user_id);
+            })
+            ->select('trial_questions.question_id', 'trial_questions.is_right')
+            ->where('trial.administration', '=', $administration)
+            ->where('trial.grup', '=', $grup)
+            ->where('trial.user_id', '=', $user_id);
+
+        return $qryTrialQuestionsStats;
     }
 }
