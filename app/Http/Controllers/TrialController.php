@@ -88,13 +88,14 @@ class TrialController extends Controller
                 $trialName = 'Examen genérico';
                 $numQuestions = 100;
 
-                $questions = $this->questionController->obtainExamByAdm($trialData['adm']);
+                $questions = $this->questionController->obtainExamByAdmGrp($trialData['adm'], $trialData['grp']);
             } else {
                 $trialName = 'Examen tema';
                 $numQuestions = 50;
 
-                $questions = $this->questionController->obtainExamByAdmTheme($trialData['adm'], $trialData['thm'], $numQuestions);
+                $questions = $this->questionController->obtainExamByAdmGrpTheme($trialData['adm'], $trialData['grp'], $trialData['thm'], $numQuestions);
             }
+            
             DB::beginTransaction();
 
             $trial = Trial::create([

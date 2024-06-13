@@ -133,10 +133,11 @@ class QuestionController extends Controller
     /**
      * Obtain exam by administration and theme
      */
-    public function obtainExamByAdmTheme(String $administration, int $theme, int $numQuestions = 50)
+    public function obtainExamByAdmGrpTheme(String $administration, String $grup, int $theme, int $numQuestions = 50)
     {
         $conditions = [
             ['administration', '=', $administration],
+            ['grup', '=', $grup],
             ['theme', '=', $theme]
         ];
 
@@ -169,11 +170,14 @@ class QuestionController extends Controller
     }
 
     /**
-     * Obtain exam by administration
+     * Obtain exam by administration grup
      */
-    public function obtainExamByAdm(String $administration, int $numQuestions = 100)
+    public function obtainExamByAdmGrp(String $administration, String $grup, int $numQuestions = 100)
     {
-        $conditions = [['administration', '=', $administration]];
+        $conditions = [
+            ['administration', '=', $administration],
+            ['grup', '=', $grup]
+        ];
 
         $themesCounts = Question::groupBy('theme')
             ->select('theme', DB::raw('COUNT(*) as count'))->pluck('count', 'theme');
@@ -188,6 +192,7 @@ class QuestionController extends Controller
         for ($theme = 1; $theme <= $totalThemes; $theme++) {
             $conditions = [
                 ['administration', '=', $administration],
+                ['grup', '=', $grup],
                 ['theme', '=', $theme]
             ];
 
