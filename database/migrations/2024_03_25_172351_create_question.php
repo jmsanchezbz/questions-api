@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('option3',1000);
             $table->string('option4',1000);
             $table->unsignedInteger('answer')->nullable();
-            $table->string('explanation',1500);
+            $table->string('explanation',4000);
             $table->boolean('verified');
             $table->timestamps();
         });
