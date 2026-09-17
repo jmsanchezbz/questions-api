@@ -19,46 +19,30 @@ use App\Http\Controllers\TrialController;
 |
 */
 
-Route::get('/authenticated', [AuthController::class, 'authenticated'])
-    ->middleware('auth:sanctum');
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->middleware('auth:sanctum');
+Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/trials', [TrialController::class, 'generate'])
-    ->middleware('auth:sanctum');
-Route::get('/trials', [TrialController::class, 'find'])
-    ->middleware('auth:sanctum');
-Route::get('/trials/{id}', [TrialController::class, 'findById'])
-    ->middleware('auth:sanctum');
-Route::put('/trials/{id}', [TrialController::class, 'update'])
-    ->middleware('auth:sanctum');
-Route::put('/trials/{id}/questions/{idq}', [TrialController::class, 'updateTrialQuestion'])
-    ->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/authenticated', [AuthController::class, 'authenticated']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-Route::group(['prefix' => '', 'middleware' => 'auth:sanctum'], function () {
+    Route::get('/questions', [QuestionController::class, 'find']);
+    Route::get('/questions/{id}', [QuestionController::class, 'findById']);
+    Route::put('/questions/{id}', [QuestionController::class, 'update']);
+
+    Route::get('/stats/themes', [StatsController::class, 'themesStats']);
+    Route::get('/stats/themes/questions', [StatsController::class, 'questionsStatsByTheme']);
+
+    Route::post('/trials', [TrialController::class, 'generate']);
+    Route::get('/trials', [TrialController::class, 'find']);
+    Route::get('/trials/{id}', [TrialController::class, 'findById']);
+    Route::put('/trials/{id}', [TrialController::class, 'update']);
+    Route::put('/trials/{id}/questions/{idq}', [TrialController::class, 'updateTrialQuestion']);
+
     Route::get('/users', [UserController::class, 'findAll']);
     Route::get('/users/me', function (Request $request) {
         return $request->user();
     });
     Route::get('/users/{id}', [UserController::class, 'findById']);
     Route::put('/users/{id}', [AuthController::class, 'editProfile']);
-});
-
-/*Route::get('/users', [UserController::class,'findAll']
-})->middleware('auth:sanctum');
-Route::get('/users/me', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');*/
-
-Route::get('/questions', [QuestionController::class, 'find']);
-Route::get('/questions/{id}', [QuestionController::class, 'findById']);
-Route::put('/questions/{id}', [QuestionController::class, 'update'])
-    ->middleware('auth:sanctum');
-
-Route::post('/register', [AuthController::class, 'register']);
-
-Route::group(['prefix' => '', 'middleware' => 'auth:sanctum'], function () {
-    Route::get('/stats/themes', [StatsController::class, 'themesStats']);
-    Route::get('/stats/themes/questions', [StatsController::class, 'questionsStatsByTheme']);
 });
