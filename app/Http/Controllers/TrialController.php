@@ -86,16 +86,17 @@ class TrialController extends Controller
 
             if ($trialData['typ'] == 'exam') {
                 $trialName = 'Examen genérico';
-                $numQuestions = 100;
+                $maxNumQuestions = 100;
 
                 $questions = $this->questionController->obtainExamByAdmGrp($trialData['adm'], $trialData['grp']);
             } else {
                 $trialName = 'Examen tema';
-                $numQuestions = 50;
+                $maxNumQuestions = 50;
 
-                $questions = $this->questionController->obtainExamByAdmGrpTheme($trialData['adm'], $trialData['grp'], $trialData['thm'], $numQuestions);
+                $questions = $this->questionController->obtainExamByAdmGrpTheme($trialData['adm'], $trialData['grp'], $trialData['thm'], $maxNumQuestions);
             }
-            
+
+            $numQuestions = $questions->count();
             DB::beginTransaction();
 
             $trial = Trial::create([
@@ -141,7 +142,7 @@ class TrialController extends Controller
 
     /**
      * Update a complete Trial with its questions
-     * 
+     *
      * num_mistakes, is_completed calculated in front
      */
     public function update(Request $request, $id)

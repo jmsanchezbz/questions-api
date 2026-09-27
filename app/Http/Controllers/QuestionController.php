@@ -150,7 +150,7 @@ class QuestionController extends Controller
     /**
      * Obtain exam by administration and theme with mistakes
      */
-    public function obtainExamByAdmThemeWithUserMistakes(int $user_id, String $administration, int $theme, int $numQuestions = 0)
+    public function obtainExamByAdmThemeWithUserMistakes(int $user_id, String $administration, int $theme, int $numQuestions = 50)
     {
         $conditions = [
             ['administration', '=', $administration],
@@ -174,10 +174,6 @@ class QuestionController extends Controller
      */
     public function obtainExamByAdmGrp(String $administration, String $grup, int $numQuestions = 100)
     {
-        $conditions = [
-            ['administration', '=', $administration],
-            ['grup', '=', $grup]
-        ];
 
         $themesCounts = Question::groupBy('theme')
             ->select('theme', DB::raw('COUNT(*) as count'))->pluck('count', 'theme');
