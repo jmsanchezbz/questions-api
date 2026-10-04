@@ -96,7 +96,7 @@ class TrialController extends Controller
                 $questions = $this->questionController->obtainExamByAdmGrpTheme($trialData['adm'], $trialData['grp'], $trialData['thm'], $maxNumQuestions);
             }
 
-            $numQuestions = $questions->count();
+            $numQuestions = is_countable($questions) ? count($questions) : 0;
             DB::beginTransaction();
 
             $trial = Trial::create([
