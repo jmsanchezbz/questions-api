@@ -154,6 +154,29 @@ class AuthController extends Controller
         }
     }
 
+    public function refresh(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        $user->tokens()->delete();
+
+        $token = $user->createToken($user->name . '-auth-token')->plainTextToken;
+
+        $expiresIn = config('sanctum.expiration');
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => $expiresIn ? $expiresIn * 60 : null,
+        ]);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();

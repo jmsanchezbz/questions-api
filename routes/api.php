@@ -24,6 +24,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/authenticated', [AuthController::class, 'authenticated']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/questions', [QuestionController::class, 'find']);
