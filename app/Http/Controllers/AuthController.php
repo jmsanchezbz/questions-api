@@ -119,6 +119,8 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $ttl = (int) config('sanctum.token_ttl');
+
         try {
             $loginData = $request->validate([
                 'username' => 'required|string',
@@ -133,11 +135,18 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            $token = $user->createToken($user->name . '-auth-token')->plainTextToken;
+            $token = $user->createToken(
+                $user->name . '-auth-token',
+                    ['*'],
+                    now()->addMinutes($ttl)
+                )->plainTextToken;
+
             return response()->json([
                 'username' => $user->username,
                 'role' => $user->role,
                 'access_token' => $token,
+                'token_type' => 'Bearer',
+                'expires_in' => $ttl * 60,
             ]);
         } catch (ValidationException $exception) {
             $errors = $exception->errors();
@@ -156,6 +165,8 @@ class AuthController extends Controller
 
     public function refresh(Request $request)
     {
+        $ttl = (int) config('sanctum.token_ttl');
+
         $user = $request->user();
 
         if (!$user) {
@@ -166,14 +177,16 @@ class AuthController extends Controller
 
         $user->tokens()->delete();
 
-        $token = $user->createToken($user->name . '-auth-token')->plainTextToken;
-
-        $expiresIn = config('sanctum.expiration');
+        $token = $user->createToken(
+            $user->name . '-auth-token',
+            ['*'],
+            now()->addMinutes($ttl)
+        )->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'expires_in' => $expiresIn ? $expiresIn * 60 : null,
+            'expires_in' => $ttl * 60,
         ]);
     }
 
