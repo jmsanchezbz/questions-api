@@ -62,7 +62,7 @@ return [
     */
 
     'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
-    'token_ttl' => env('SANCTUM_TOKEN_TTL', 10),
+    'token_ttl' => env('SANCTUM_TOKEN_TTL', 20),
 
     /*
     |--------------------------------------------------------------------------
