@@ -148,6 +148,20 @@ class QuestionController extends Controller
     }
 
     /**
+     * Obtain exam by administration and theme
+     */
+    public function obtainExamByAdmGrpThemeWithUserMistakes(int $user_id, String $administration, String $grup, int $theme, int $numQuestions = 50)
+    {
+        $conditions = [
+            ['administration', '=', $administration],
+            ['grup', '=', $grup],
+            ['theme', '=', $theme]
+        ];
+
+        return $this->obtainExamByConditions($user_id, $conditions, $numQuestions)->toArray();
+    }
+
+    /**
      * Obtain exam by administration and theme with mistakes
      */
     public function obtainExamByAdmThemeWithUserMistakes(int $user_id, String $administration, int $theme, int $numQuestions = 50)
@@ -157,14 +171,34 @@ class QuestionController extends Controller
             ['theme', '=', $theme]
         ];
 
+        return $this->obtainExamByConditions($user_id, $conditions, $numQuestions);
+    }
+
+    private function obtainExamByConditions(int $user_id, array $conditions, int $numQuestions = 50) 
+    {
+
+        $userQuestionStats = DB::table('trial_questions')
+            ->join('trial', 'trial.id', '=', 'trial_questions.trial_id')
+            ->where('trial.user_id', '=', $user_id)
+            ->select(
+                'trial_questions.question_id',
+                DB::raw('COUNT(*) as answered_questions'),
+                DB::raw('SUM(CASE WHEN trial_questions.is_right = 0 THEN 1 ELSE 0 END) as wrong_questions')
+            )
+            ->groupBy('trial_questions.question_id');
+
         $questions = Question::where($conditions)
-            ->whereHas(['trialQuestions', function ($query) use ($user_id) {
-                $query->where('is_right', false)
-                    ->whereHas('trial', function ($query) use ($user_id) {
-                        $query->where('user_id', $user_id);
-                    });
-            }])
-            ->inRandomOrder()->limit($numQuestions)->get();
+            ->leftJoinSub($userQuestionStats, 'user_question_stats', function ($join) {
+                $join->on('user_question_stats.question_id', '=', 'question.id');
+            })
+            ->select(
+                'question.*',
+                DB::raw('COALESCE(user_question_stats.answered_questions, 0) as answered_questions'),
+                DB::raw('COALESCE(user_question_stats.wrong_questions, 0) as wrong_questions')
+            )
+            ->orderByRaw('answered_questions ASC, wrong_questions DESC, question.number ASC')
+            ->limit($numQuestions)
+            ->get();
 
         return $questions;
     }

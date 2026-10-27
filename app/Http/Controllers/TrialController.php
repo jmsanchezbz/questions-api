@@ -93,7 +93,7 @@ class TrialController extends Controller
                 $trialName = 'Examen tema';
                 $maxNumQuestions = 50;
 
-                $questions = $this->questionController->obtainExamByAdmGrpTheme($trialData['adm'], $trialData['grp'], $trialData['thm'], $maxNumQuestions);
+                $questions = $this->questionController->obtainExamByAdmGrpThemeWithUserMistakes($user->id, $trialData['adm'], $trialData['grp'], $trialData['thm'], $maxNumQuestions);
             }
 
             $numQuestions = is_countable($questions) ? count($questions) : 0;
