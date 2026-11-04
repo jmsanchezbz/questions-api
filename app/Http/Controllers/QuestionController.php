@@ -196,7 +196,7 @@ class QuestionController extends Controller
                 DB::raw('COALESCE(user_question_stats.answered_questions, 0) as answered_questions'),
                 DB::raw('COALESCE(user_question_stats.wrong_questions, 0) as wrong_questions')
             )
-            ->orderByRaw('answered_questions ASC, wrong_questions DESC, question.number ASC')
+            ->orderByRaw('wrong_questions DESC, answered_questions ASC, RAND()')
             ->limit($numQuestions)
             ->get();
 
