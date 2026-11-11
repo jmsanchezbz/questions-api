@@ -174,16 +174,18 @@ class QuestionController extends Controller
         return $this->obtainExamByConditions($user_id, $conditions, $numQuestions);
     }
 
-    private function obtainExamByConditions(int $user_id, array $conditions, int $numQuestions = 50) 
+    private function obtainExamByConditions(int $user_id, array $conditions, int $numQuestions = 50)
     {
 
         $userQuestionStats = DB::table('trial_questions')
             ->join('trial', 'trial.id', '=', 'trial_questions.trial_id')
             ->where('trial.user_id', '=', $user_id)
+            ->where('trial.is_completed', '=', 1)
             ->select(
                 'trial_questions.question_id',
                 DB::raw('COUNT(*) as answered_questions'),
-                DB::raw('SUM(CASE WHEN trial_questions.is_right = 0 THEN 1 ELSE 0 END) as wrong_questions')
+                DB::raw('SUM(CASE WHEN (trial_questions.is_right = 0 OR trial_questions.is_right IS NULL) THEN 1 ELSE 0 END) as wrong_questions'),
+                DB::raw('SUM(CASE WHEN trial_questions.is_right = 1 THEN 1 ELSE 0 END) as right_questions')
             )
             ->groupBy('trial_questions.question_id');
 
@@ -194,9 +196,19 @@ class QuestionController extends Controller
             ->select(
                 'question.*',
                 DB::raw('COALESCE(user_question_stats.answered_questions, 0) as answered_questions'),
-                DB::raw('COALESCE(user_question_stats.wrong_questions, 0) as wrong_questions')
+                DB::raw('COALESCE(user_question_stats.wrong_questions, 0) as wrong_questions'),
+                DB::raw('COALESCE(user_question_stats.right_questions, 0) as right_questions')
             )
-            ->orderByRaw('wrong_questions DESC, answered_questions ASC, RAND()')
+            ->orderByRaw('
+                CASE
+                    WHEN COALESCE(user_question_stats.wrong_questions, 0) > 0 THEN 1
+                    WHEN COALESCE(user_question_stats.answered_questions, 0) = 0 THEN 2
+                    ELSE 3
+                END ASC,
+                wrong_questions DESC,
+                right_questions ASC,
+                RAND()
+            ')
             ->limit($numQuestions)
             ->get();
 
