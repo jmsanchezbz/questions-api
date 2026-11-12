@@ -6,53 +6,50 @@ use Illuminate\Http\Request;
 use App\Models\Question;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Type\Integer;
 use Throwable;
 
 class QuestionController extends Controller
 {
     /**
-     * Generic find questions
+     * Generic find questions based on administration, group, theme, and verification status.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function find(Request $request)
     {
+        $findData = $request->validate([
+            'adm' => 'required|string',
+            'grp' => 'required|string',
+            'thm' => 'nullable|integer',
+            'verified' => 'nullable|integer'
+        ]);
+
         try {
-            $findData = $request->validate([
-                'adm' => 'required|string',
-                'grp' => 'required|string',
-                'thm' => 'integer',
-                'verified' => 'nullable|integer'
-            ]);
+            $admValue = $findData['adm'];
+            $grpValue = $findData['grp'];
 
-            if ($request->adm && $request->grp) {
-
-                $admValue = $findData['adm'];
-                $grpValue = $findData['grp'];
-
-                if ($findData['thm']) {
-                    $thmValue = $request->thm;
-                    $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue], ['theme', '=', $thmValue]];
-                } else {
-                    $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue]];
-                }
-
-                if (isset($findData['verified']) and !is_null($findData['verified'])) {
-                    $verifiedValue = $findData['verified'];
-                    array_push($conditions, ['verified', '=', $verifiedValue]);
-                }
-
-                $questions = Question::where($conditions)->get();
-                return response()->json($questions, 200, [], JSON_UNESCAPED_UNICODE);
+            if ($request->filled('thm')) {
+                $thmValue = $findData['thm'];
+                $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue], ['theme', '=', $thmValue]];
+            } else {
+                $conditions = [['administration', '=', $admValue], ['grup', '=', $grpValue]];
             }
 
-            return response([
-                'status' => 'error',
-                'description' => 'Missing required parameters adm(' . request()->adm . ') grp(' . request()->grp . ')'
-            ]);
+            if (isset($findData['verified'])) {
+                $conditions[] = ['verified', '=', $findData['verified']];
+            }
+
+            $questions = Question::where($conditions)->get();
+            return response()->json($questions, 200, [], JSON_UNESCAPED_UNICODE);
         } catch (Throwable $e) {
+            Log::error($e);
+
             return response()->json([
                 'status' => 'ko',
-                'message' => $e->getMessage()
+                'message' => app()->isLocal() ? $e->getMessage() : 'Error finding questions.'
             ], 500);
         }
     }
